@@ -16,7 +16,7 @@ jobs:
       - run:
           name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=no ubuntu@3.87.133.178 "
+            ssh -o StrictHostKeyChecking=no ubuntu@35.172.178.100 "
               cd ExampleApplication &&
               git pull origin main &&
               npm install &&
