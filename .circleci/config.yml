@@ -1,6 +1,25 @@
 version: 2.1
 
 jobs:
+  run_checks:
+    docker:
+      - image: cimg/node:18.19
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies
+          command: npm install
+
+      - run:
+          name: Audit packages
+          command: npm audit
+
+      - run:
+          name: Run tests
+          command: npm test
+
+
   build_and_push_docker:
     docker:
       - image: cimg/base:stable
@@ -24,6 +43,7 @@ jobs:
           command: |
             docker push $DOCKER_USERNAME/exampleapp
 
+
   deploy:
     docker:
       - image: cimg/base:stable
@@ -46,14 +66,23 @@ jobs:
               pm2 restart calculator-app || pm2 start bin/www --name calculator-app
             "
 
+
 workflows:
   version: 2
   deploy_workflow:
     jobs:
-      - build_and_push_docker:
+      - run_checks:
           filters:
             branches:
               only: main
+
+      - build_and_push_docker:
+          requires:
+            - run_checks
+          filters:
+            branches:
+              only: main
+
       - deploy:
           requires:
             - build_and_push_docker
